@@ -1,9 +1,11 @@
 package model.dao.impl;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +27,42 @@ public class SellerDaoJDBC implements SellerDao{
 	
 	@Override
 	public void insert(Seller obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
 		
+		try {
+			st = conn.prepareStatement(
+					"INSERT INTO seller "
+					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES "
+					+ "(?, ?, ?, ?, ?)", 
+					Statement.RETURN_GENERATED_KEYS);//retorna o ID do vendedor inserido
+			
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthdate().getTime()));//data que vem do banco sql
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId()); 
+			
+			int rowsAffected = st.executeUpdate(); //realiza o update
+			
+			if(rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();//retorna os ids
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					obj.setID(id);
+				}
+				DB.CloseResultSet(rs);
+			}
+			else {
+				throw new DbException("Unexpected error! no rows affected!"); //excessao caso não retorne nenhuma linha de id. Defensiva
+			}
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.CloseStatement(st);
+		}
 	}
 
 	@Override
