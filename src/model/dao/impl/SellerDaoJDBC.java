@@ -91,9 +91,44 @@ public class SellerDaoJDBC implements SellerDao{
 	}
 
 	@Override
-	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Seller> findAll() { //buscar todos vendedores
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement(
+					"SELECT seller.* ,department.Name as DepName "
+					+ "FROM seller INNER JOIN department "
+					+ "ON seller.DepartmentId = department.Id "
+					+ "ORDER BY Name ");
+			
+			rs = st.executeQuery();
+			
+			List<Seller> list = new ArrayList<>();
+			Map<Integer, Department> map = new HashMap<>();//map para realizar a verificação de duplicidade, não aceita repeticoes
+			
+			//transformar os dados do SQL para orientado a objeto para gravar na memoria
+			while (rs.next()) {  //While serve para validar e não retornar a duplicidade
+				
+				Department dep = map.get(rs.getInt("DepartmentId")); //dep recebe o id do Departamento
+				
+				if(dep == null) { //valida se o valor já existe ou não
+					dep = instantiateDepartment(rs);
+					map.put(rs.getInt("DepartmentId"), dep); //salvar o departamento para o dep
+					 
+				}
+			
+				Seller obj = instantiateSeller(rs,dep); //é DEP pois instanciamos um Department e passará todos os dados informados
+				list.add(obj); //faz tudo e adiciona na lista
+			}
+			return list;
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.CloseResultSet(rs); //fechando os recursos
+			DB.CloseStatement(st);
+		}
 	}
 
 	@Override
