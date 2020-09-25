@@ -53,20 +53,9 @@ public class SellerDaoJDBC implements SellerDao{
 			rs = st.executeQuery();
 			//transformar os dados do SQL para orientado a objeto para gravar na memoria
 			if (rs.next()) { //retorna se a consulta retornou alguma informação
-				Department dep = new Department();
-				dep.setId(rs.getInt("DepartmentId"));//pegamos o id
-				dep.setName(rs.getString("DepName"));//pegamos o nome do departamento
-				
-				Seller obj = new Seller();
-				obj.setID(rs.getInt("Id"));
-				obj.setName(rs.getString("Name"));
-				obj.setEmail(rs.getString("Email"));
-				obj.setBaseSalary(rs.getDouble("BaseSalary"));
-				obj.setBirthdate(rs.getDate("BirthDate"));
-				obj.setDepartment(dep); //é DEP pois instanciamos um Department e passará todos os dados informados
-				
-				return obj;
-				
+				Department dep = instantiateDepartment(rs);//pegamos o nome do departamento
+				Seller obj = instantiateSeller(rs,dep); //é DEP pois instanciamos um Department e passará todos os dados informados
+				return obj;	
 			}
 			return null;
 		}
@@ -78,6 +67,24 @@ public class SellerDaoJDBC implements SellerDao{
 			DB.CloseStatement(st);
 		}
 		
+	}
+
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException { //excessao propagada
+		Seller obj = new Seller();
+		obj.setID(rs.getInt("Id"));
+		obj.setName(rs.getString("Name"));
+		obj.setEmail(rs.getString("Email"));
+		obj.setBaseSalary(rs.getDouble("BaseSalary"));
+		obj.setBirthdate(rs.getDate("BirthDate"));
+		obj.setDepartment(dep);
+		return obj;
+	}
+
+	private Department instantiateDepartment(ResultSet rs) throws SQLException { //nova função
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId"));//pegamos o id
+		dep.setName(rs.getString("DepName"));
+		return dep;
 	}
 
 	@Override

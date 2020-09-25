@@ -11,6 +11,7 @@ public class Program {
 		
 		SellerDao sellerdao = DaoFactory.createSellerDao();//instanciar um sellerDao que recebe o que vem da DaoFactory, independentemente do que seja.
 		
+		System.out.println("=====Teste 1: Seller findById =====");
 		Seller seller = sellerdao.findById(3);
 		
 		System.out.println(seller);
