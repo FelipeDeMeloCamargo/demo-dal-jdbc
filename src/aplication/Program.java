@@ -38,6 +38,11 @@ public class Program {
 		sellerdao.insert(newSeller);
 		System.out.println("Inserted! New id = " + newSeller.getID());//retornará o id do new seller
 
+		System.out.println("\n=====Teste 5: Seller Insert =====");
+		seller = sellerdao.findById(1);//carrega os dados do id 1
+		seller.setName("Martha Wayne");
+		sellerdao.update(seller);
+		System.out.println("Update complete");
 	}
 
 }
